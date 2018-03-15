@@ -95,4 +95,30 @@ class CyclopsService
     {
 
     }
+
+    public function getBrandOptOutStatus(CustomerEntity $customerEntity): bool
+    {
+        $optOut = false;
+        $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
+        $request = new HttpRequest($url);
+        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
+        $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
+        foreach ($response->data as $data) {
+            if ($data->brandId == $this->brandId) {
+                $optOut = $data->optOut;
+            }
+        }
+
+        return $optOut;
+    }
+
+    public function setBrandOptOutStatus(CustomerEntity $customerEntity, bool $optOut)
+    {
+        $brands = json_encode(['brandId' => $this->brandId, 'optOut' => $optOut]);
+        $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
+
+        $request = new HttpRequest($url, 'post', $brands);
+        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
+        $this->httpClient->getResponse($request);
+    }
 }

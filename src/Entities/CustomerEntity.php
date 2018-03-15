@@ -8,4 +8,6 @@ class CustomerEntity
     public $identity;
 
     public $subscriptions;
+
+    public $brandOptOut;
 }
