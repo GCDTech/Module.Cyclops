@@ -6,6 +6,11 @@ use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
 use Gcd\Cyclops\Entities\SubscriptionEntity;
 use Gcd\Cyclops\Services\CyclopsService;
 
+/**
+ * Class GetSubscriptionSettingsUseCase
+ * @package Gcd\Cyclops\UseCases
+ * @deprecated
+ */
 class GetSubscriptionSettingsUseCase
 {
     /**
