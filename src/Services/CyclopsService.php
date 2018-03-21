@@ -119,6 +119,7 @@ class CyclopsService
 
         $request = new HttpRequest($url, 'post', $brands);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $this->httpClient->getResponse($request);
+        $response = $this->httpClient->getResponse($request);
+        return $response;
     }
 }
