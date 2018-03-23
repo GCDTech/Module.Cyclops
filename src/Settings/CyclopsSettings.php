@@ -2,11 +2,19 @@
 
 namespace Gcd\Cyclops\Settings;
 
-use Rhubarb\Crown\Settings;
-
-class CyclopsSettings extends Settings
+class CyclopsSettings
 {
     public $cyclopsUrl = '';
     public $authorizationUsername = '';
     public $authorizationPassword = '';
+
+    static $singleton;
+
+    public static function singleton()
+    {
+        if (!self::$singleton) {
+            self::$singleton = new self();
+        }
+        return self::$singleton;
+    }
 }
