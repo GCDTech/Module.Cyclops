@@ -96,23 +96,23 @@ class CyclopsService
 
     }
 
-    public function getBrandOptOutStatus(CustomerEntity $customerEntity): bool
+    public function getBrandOptInStatus(CustomerEntity $customerEntity): bool
     {
-        $optOut = false;
+        $optIn = false;
         $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
         foreach ($response->data as $data) {
             if ($data->brandId == $this->brandId) {
-                $optOut = $data->optOut;
+                $optIn = $data->optIn;
             }
         }
 
-        return $optOut;
+        return $optIn;
     }
 
-    public function setBrandOptOutStatus(CustomerEntity $customerEntity, bool $optOut)
+    public function setBrandOptInStatus(CustomerEntity $customerEntity, bool $optIn)
     {
         $brands = json_encode(['brandId' => $this->brandId, 'optOut' => $optOut]);
         $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";

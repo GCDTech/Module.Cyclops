@@ -8,7 +8,7 @@ use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
 use Gcd\Cyclops\Services\CyclopsService;
 use Gcd\Cyclops\Tests\unit\CyclopsTestCase;
 
-class GetBrandOptOutUseCaseTest extends CyclopsTestCase
+class GetBrandOptInUseCaseTest extends CyclopsTestCase
 {
     public function testCyclopsIdGetsCreated()
     {
@@ -25,7 +25,7 @@ class GetBrandOptOutUseCaseTest extends CyclopsTestCase
                 $customer->identity = $identityEntity;
                 return $customer;
             },
-            'getBrandOptOutStatus' => function (CustomerEntity $customerEntity): bool {
+            'getBrandOptInStatus' => function (CustomerEntity $customerEntity): bool {
                 return false;
             },
         ]);
@@ -33,7 +33,7 @@ class GetBrandOptOutUseCaseTest extends CyclopsTestCase
         $id = new CyclopsIdentityEntity();
         $id->email = "joe@hotmail.com";
 
-        $useCase = new GetBrandOptOutUseCase($service);
+        $useCase = new GetBrandOptInUseCase($service);
         $response = $useCase->execute($id);
 
         verify($response)->notNull();
@@ -42,7 +42,7 @@ class GetBrandOptOutUseCaseTest extends CyclopsTestCase
         $id = new CyclopsIdentityEntity();
         $id->email = "test@hotmail.com";
 
-        $useCase = new GetBrandOptOutUseCase($service);
+        $useCase = new GetBrandOptInUseCase($service);
         $response2 = $useCase->execute($id);
 
         verify($response2->identity->id)->notSame($response->identity->id);
@@ -51,13 +51,13 @@ class GetBrandOptOutUseCaseTest extends CyclopsTestCase
         $id->email = "test@hotmail.com";
         $id->id = 24;
 
-        $useCase = new GetBrandOptOutUseCase($service);
+        $useCase = new GetBrandOptInUseCase($service);
         $response3 = $useCase->execute($id);
 
         verify($response3->identity->id)->equals(24);
     }
 
-    public function testBrandOptOutReturned()
+    public function testBrandOptInReturned()
     {
         $count = 0;
         $service = Stub::make(CyclopsService::class, [
@@ -67,7 +67,7 @@ class GetBrandOptOutUseCaseTest extends CyclopsTestCase
                 $customer->identity = $identityEntity;
                 return $customer;
             },
-            'getBrandOptOutStatus' => function (CustomerEntity $customerEntity): bool {
+            'getBrandOptInStatus' => function (CustomerEntity $customerEntity): bool {
                 return false;
             },
         ]);
@@ -75,9 +75,9 @@ class GetBrandOptOutUseCaseTest extends CyclopsTestCase
         $id = new CyclopsIdentityEntity();
         $id->email = "joe@hotmail.com";
 
-        $useCase = new GetBrandOptOutUseCase($service);
+        $useCase = new GetBrandOptInUseCase($service);
         $response = $useCase->execute($id);
 
-        verify($response->brandOptOut)->false();
+        verify($response->brandOptIn)->false();
     }
 }

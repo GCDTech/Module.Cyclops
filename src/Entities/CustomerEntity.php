@@ -9,5 +9,5 @@ class CustomerEntity
 
     public $subscriptions;
 
-    public $brandOptOut;
+    public $brandOptIn;
 }

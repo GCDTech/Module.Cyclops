@@ -6,7 +6,7 @@ use Gcd\Cyclops\Entities\CustomerEntity;
 use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
 use Gcd\Cyclops\Services\CyclopsService;
 
-class GetBrandOptOutUseCase
+class SetBrandOptInUseCase
 {
     /**
      * @var CyclopsService
@@ -18,7 +18,7 @@ class GetBrandOptOutUseCase
         $this->cyclopsService = $cyclopsService;
     }
 
-    public function execute(CyclopsIdentityEntity $identityEntity): CustomerEntity
+    public function execute(CyclopsIdentityEntity $identityEntity, bool $optIn): CustomerEntity
     {
         if (!$identityEntity->id) {
             $customer = $this->cyclopsService->createCustomer($identityEntity);
@@ -26,8 +26,8 @@ class GetBrandOptOutUseCase
             $customer = $this->cyclopsService->loadCustomer($identityEntity);
         }
 
-        $optOut = $this->cyclopsService->getBrandOptOutStatus($customer);
-        $customer->brandOptOut = $optOut;
+        $this->cyclopsService->setBrandOptInStatus($customer, $optIn);
+
         return $customer;
     }
 }
