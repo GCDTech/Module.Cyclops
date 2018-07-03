@@ -93,7 +93,10 @@ class CyclopsService
 
     public function deleteCustomer(CyclopsIdentityEntity $identityEntity)
     {
-
+        $url = $this->cyclopsUrl . "customer/{$identityEntity->id}";
+        $request = new HttpRequest($url, 'delete');
+        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
+        return $this->httpClient->getResponse($request);
     }
 
     public function getBrandOptInStatus(CustomerEntity $customerEntity): bool
