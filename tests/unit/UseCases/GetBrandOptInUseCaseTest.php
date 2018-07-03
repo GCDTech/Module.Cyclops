@@ -1,12 +1,13 @@
 <?php
 
-namespace Gcd\Cyclops\UseCases;
+namespace Gcd\Cyclops\Tests\unit\UseCases;
 
 use Codeception\Stub;
 use Gcd\Cyclops\Entities\CustomerEntity;
 use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
 use Gcd\Cyclops\Services\CyclopsService;
 use Gcd\Cyclops\Tests\unit\CyclopsTestCase;
+use Gcd\Cyclops\UseCases\GetBrandOptInUseCase;
 
 class GetBrandOptInUseCaseTest extends CyclopsTestCase
 {

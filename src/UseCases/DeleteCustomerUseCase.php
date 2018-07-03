@@ -5,7 +5,7 @@ namespace Gcd\Cyclops\UseCases;
 use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
 use Gcd\Cyclops\Services\CyclopsService;
 
-class DeleteSubscriptionSettingsUseCase
+class DeleteCustomerUseCase
 {
     /**
      * @var CyclopsService
