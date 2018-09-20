@@ -137,7 +137,22 @@ class CyclopsService
         $url = $this->cyclopsUrl . "customer/{$identityEntity->id}";
         $request = new HttpRequest($url, 'delete');
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        return $this->httpClient->getResponse($request);
+        $response = $this->doCyclopsRequest($request);
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                throw new CustomerNotFoundException();
+                break;
+            default:
+                throw new CyclopsException();
+        }
+
+        return $response;
     }
 
     public function getBrandOptInStatus(CustomerEntity $customerEntity): bool

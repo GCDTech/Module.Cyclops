@@ -101,4 +101,48 @@ class CyclopsServiceTest extends CyclopsTestCase
         $identity->email = 'test@test.com';
         $assertException(CustomerNotFoundException::class, "Should get an exception for trying to load a customer from an email address that doesn't exist");
     }
+
+    public function testDeleteCustomerErrorResponses()
+    {
+        $service = Stub::make(CyclopsService::class, [
+            'doCyclopsRequest' => function (HttpRequest $request): HttpResponse {
+                $response = new HttpResponse();
+                $response->setResponseCode(200);
+
+                if ($this->authorization == false) {
+                    $response->setResponseCode(403);
+                } elseif ($this->badRequest) {
+                    $response->setResponseCode(400);
+                } elseif (strpos($request->getUrl(), 'afr1tr') !== false) {
+                    $response->setResponseCode(404);
+                }
+
+                return $response;
+            },
+        ]);
+
+        $identity = new CyclopsIdentityEntity();
+        $identity->id = 'afr1tr';
+
+        $assertException = function ($exceptionClass, $message) use ($service, $identity) {
+            self::assertThrowsException(
+                $exceptionClass,
+                function () use ($identity, $service) {
+                    $service->deleteCustomer($identity);
+                },
+                $message
+            );
+        };
+
+
+        $assertException(UserForbiddenException::class,
+            "Should get an exception for trying to delete a customer with a User who does not have write access");
+
+        $this->authorization = true;
+        $assertException(CustomerNotFoundException::class,
+            "Should get an exception for trying to delete a customer from a CyclopsID that doesn't exist");
+
+        $this->badRequest = true;
+        $assertException(CyclopsException::class, "Should get an exception for any other issues");
+    }
 }
