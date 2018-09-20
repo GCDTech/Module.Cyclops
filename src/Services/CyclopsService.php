@@ -4,6 +4,9 @@ namespace Gcd\Cyclops\Services;
 
 use Gcd\Cyclops\Entities\CustomerEntity;
 use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
+use Gcd\Cyclops\Exceptions\CustomerNotFoundException;
+use Gcd\Cyclops\Exceptions\CyclopsException;
+use Gcd\Cyclops\Exceptions\UserForbiddenException;
 use Gcd\Cyclops\Http\CurlHttpClient;
 use Gcd\Cyclops\Http\HttpRequest;
 use Gcd\Cyclops\Settings\CyclopsSettings;
@@ -33,18 +36,40 @@ class CyclopsService
             $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-            $this->httpClient->getResponse($request);
+            $response = $this->doCyclopsRequest($request);
         } else {
             $url = $this->cyclopsUrl . "customer?email={$identityEntity->email}";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-            $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
-            $identityEntity->id = $response->data[0]->cyclopsId;
+
+            $response = $this->doCyclopsRequest($request);
+            $responseBody = json_decode($response->getResponseBody());
+            if ($responseBody) {
+                $identityEntity->id = $responseBody->data[0]->cyclopsId;
+            }
+        }
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                throw new CustomerNotFoundException();
+                break;
+            default:
+                throw new CyclopsException();
         }
 
         $customer = new CustomerEntity();
         $customer->identity = $identityEntity;
         return $customer;
+    }
+
+    protected function doCyclopsRequest(HttpRequest $request)
+    {
+        return $this->httpClient->getResponse($request);
     }
 
     public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
@@ -53,13 +78,29 @@ class CyclopsService
             $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-            $this->httpClient->getResponse($request);
+
+            $response = $this->doCyclopsRequest($request);
         } else {
             $url = $this->cyclopsUrl . "customer?email={$identityEntity->email}";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-            $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
-            $identityEntity->id = $response->data[0]->cyclopsId;
+
+            $response = $this->doCyclopsRequest($request);
+            $responseBody = json_decode($response->getResponseBody());
+            $identityEntity->id = $responseBody->data[0]->cyclopsId;
+        }
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                throw new CustomerNotFoundException();
+                break;
+            default:
+                throw new CyclopsException();
         }
 
         $customer = new CustomerEntity();
