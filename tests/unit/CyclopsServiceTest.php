@@ -60,6 +60,7 @@ class CyclopsServiceTest extends CyclopsTestCase
         $assertException(CustomerNotFoundException::class,
             "Should get an exception for trying to load a customer from a CyclopsID that doesn't exist");
 
+        $identity->id = 'test123';
         $this->badRequest = true;
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
@@ -69,6 +70,7 @@ class CyclopsServiceTest extends CyclopsTestCase
         $service = $this->stubService('test@test.com');
 
         $identity = new CyclopsIdentityEntity();
+        $identity->email = 'test@test.com';
 
         $assertException = function ($exceptionClass, $message) use ($service, $identity) {
             self::assertThrowsException(
@@ -88,8 +90,8 @@ class CyclopsServiceTest extends CyclopsTestCase
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
 
         $this->badRequest = false;
-        $identity->email = 'test@test.com';
-        $assertException(CustomerNotFoundException::class, "Should get an exception for trying to load a customer from an email address that doesn't exist");
+        $assertException(CustomerNotFoundException::class,
+            "Should get an exception for trying to load a customer from an email address that doesn't exist");
     }
 
     public function testDeleteCustomerErrorResponses()
@@ -108,7 +110,6 @@ class CyclopsServiceTest extends CyclopsTestCase
                 $message
             );
         };
-
 
         $assertException(UserForbiddenException::class,
             "Should get an exception for trying to delete a customer with a User who does not have write access");
