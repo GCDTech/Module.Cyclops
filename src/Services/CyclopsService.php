@@ -161,10 +161,26 @@ class CyclopsService
         $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
-        foreach ($response->data as $data) {
-            if ($data->brandId == $this->brandId) {
-                $optIn = $data->optIn;
+        $response = $this->doCyclopsRequest($request);
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                throw new CustomerNotFoundException();
+                break;
+            default:
+                throw new CyclopsException();
+        }
+
+        if ($responseBody = json_decode($response->getResponseBody())) {
+            foreach ($responseBody->data as $data) {
+                if ($data->brandId == $this->brandId) {
+                    $optIn = $data->optIn;
+                }
             }
         }
 
