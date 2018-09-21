@@ -4,6 +4,7 @@ namespace Gcd\Cyclops\Services;
 
 use Gcd\Cyclops\Entities\CustomerEntity;
 use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
+use Gcd\Cyclops\Exceptions\ConflictException;
 use Gcd\Cyclops\Exceptions\CustomerNotFoundException;
 use Gcd\Cyclops\Exceptions\CyclopsException;
 use Gcd\Cyclops\Exceptions\UserForbiddenException;
@@ -195,7 +196,23 @@ class CyclopsService
         $request = new HttpRequest($url, 'post', $brands);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $request->addHeader('Content-Type', 'application/json');
-        $response = $this->httpClient->getResponse($request);
+        $response = $this->doCyclopsRequest($request);
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                throw new CustomerNotFoundException();
+                break;
+            case 409:
+                throw new ConflictException();
+            default:
+                throw new CyclopsException();
+        }
+
         return $response;
     }
 }
