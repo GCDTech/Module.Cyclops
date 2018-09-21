@@ -123,6 +123,37 @@ class CyclopsServiceTest extends CyclopsTestCase
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
 
+    public function testGetBrandOptInErrorResponses()
+    {
+        $service = $this->stubService('afr1tr');
+
+        $identity = new CyclopsIdentityEntity();
+        $identity->id = 'afr1tr';
+        $customer = new CustomerEntity();
+        $customer->identity = $identity;
+
+        $assertException = function ($exceptionClass, $message) use ($service, $customer) {
+            self::assertThrowsException(
+                $exceptionClass,
+                function () use ($customer, $service) {
+                    $service->getBrandOptInStatus($customer);
+                },
+                $message
+            );
+        };
+
+        $assertException(UserForbiddenException::class,
+            "Should get an exception for trying to get brand opt in status for a customer with a User who does not have read access");
+
+        $this->authorization = true;
+        $assertException(CustomerNotFoundException::class,
+            "Should get an exception for trying to get brand opt in status for a customer from a CyclopsID that doesn't exist");
+
+        $identity->id = 'test123';
+        $this->badRequest = true;
+        $assertException(CyclopsException::class, "Should get an exception for any other issues");
+    }
+
         $this->badRequest = true;
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
