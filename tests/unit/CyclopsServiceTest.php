@@ -3,7 +3,9 @@
 namespace Gcd\Cyclops\Tests\unit;
 
 use Codeception\Stub;
+use Gcd\Cyclops\Entities\CustomerEntity;
 use Gcd\Cyclops\Entities\CyclopsIdentityEntity;
+use Gcd\Cyclops\Exceptions\ConflictException;
 use Gcd\Cyclops\Exceptions\CustomerNotFoundException;
 use Gcd\Cyclops\Exceptions\CyclopsException;
 use Gcd\Cyclops\Exceptions\UserForbiddenException;
@@ -15,6 +17,7 @@ class CyclopsServiceTest extends CyclopsTestCase
 {
     private $authorization = false;
     private $badRequest = false;
+    private $conflict = false;
 
     private function stubService(string $urlNeedle)
     {
@@ -27,6 +30,8 @@ class CyclopsServiceTest extends CyclopsTestCase
                     $response->setResponseCode(403);
                 } elseif (strpos($request->getUrl(), $urlNeedle) !== false) {
                     $response->setResponseCode(404);
+                } elseif ($this->conflict) {
+                    $response->setResponseCode(409);
                 } elseif ($this->badRequest) {
                     $response->setResponseCode(400);
                 }
@@ -154,6 +159,38 @@ class CyclopsServiceTest extends CyclopsTestCase
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
 
+    public function testSetBrandOptInErrorResponses()
+    {
+        $service = $this->stubService('afr1tr');
+
+        $identity = new CyclopsIdentityEntity();
+        $identity->id = 'afr1tr';
+        $customer = new CustomerEntity();
+        $customer->identity = $identity;
+
+        $assertException = function ($exceptionClass, $message) use ($service, $customer) {
+            self::assertThrowsException(
+                $exceptionClass,
+                function () use ($customer, $service) {
+                    $service->setBrandOptInStatus($customer, false);
+                },
+                $message
+            );
+        };
+
+        $assertException(UserForbiddenException::class,
+            "Should get an exception for trying to set brand opt in status for a customer with a User who does not have write access");
+
+        $this->authorization = true;
+        $assertException(CustomerNotFoundException::class,
+            "Should get an exception for trying to set brand opt in status for a customer from a CyclopsID that doesn't exist");
+
+        $identity->id = 'test123';
+        $this->conflict = true;
+        $assertException(ConflictException::class,
+            "Should get an exception for any conflicts when trying to set brand opt in status for a customer");
+
+        $this->conflict = false;
         $this->badRequest = true;
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
