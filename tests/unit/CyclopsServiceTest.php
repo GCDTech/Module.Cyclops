@@ -118,6 +118,11 @@ class CyclopsServiceTest extends CyclopsTestCase
         $assertException(CustomerNotFoundException::class,
             "Should get an exception for trying to delete a customer from a CyclopsID that doesn't exist");
 
+        $identity->id = 'test123';
+        $this->badRequest = true;
+        $assertException(CyclopsException::class, "Should get an exception for any other issues");
+    }
+
         $this->badRequest = true;
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
