@@ -16,16 +16,16 @@ class CyclopsServiceTest extends CyclopsTestCase
     private $authorization = false;
     private $badRequest = false;
 
-    public function testLoadCustomerErrorResponses()
+    private function stubService(string $urlNeedle)
     {
-        $service = Stub::make(CyclopsService::class, [
-            'doCyclopsRequest' => function (HttpRequest $request): HttpResponse {
+        return Stub::make(CyclopsService::class, [
+            'doCyclopsRequest' => function (HttpRequest $request) use ($urlNeedle): HttpResponse {
                 $response = new HttpResponse();
                 $response->setResponseCode(200);
 
                 if ($this->authorization == false) {
                     $response->setResponseCode(403);
-                } elseif (strpos($request->getUrl(), 'afr1tr') !== false) {
+                } elseif (strpos($request->getUrl(), $urlNeedle) !== false) {
                     $response->setResponseCode(404);
                 } elseif ($this->badRequest) {
                     $response->setResponseCode(400);
@@ -34,6 +34,11 @@ class CyclopsServiceTest extends CyclopsTestCase
                 return $response;
             },
         ]);
+    }
+
+    public function testLoadCustomerErrorResponses()
+    {
+        $service = $this->stubService('afr1tr');
 
         $identity = new CyclopsIdentityEntity();
         $identity->id = 'afr1tr';
