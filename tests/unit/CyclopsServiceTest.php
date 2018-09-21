@@ -66,22 +66,7 @@ class CyclopsServiceTest extends CyclopsTestCase
 
     public function testCreateCustomerErrorResponses()
     {
-        $service = Stub::make(CyclopsService::class, [
-            'doCyclopsRequest' => function (HttpRequest $request): HttpResponse {
-                $response = new HttpResponse();
-                $response->setResponseCode(200);
-
-                if ($this->authorization == false) {
-                    $response->setResponseCode(403);
-                } elseif ($this->badRequest) {
-                    $response->setResponseCode(400);
-                } elseif (strpos($request->getUrl(), 'test@test.com') !== false) {
-                    $response->setResponseCode(404);
-                }
-
-                return $response;
-            },
-        ]);
+        $service = $this->stubService('test@test.com');
 
         $identity = new CyclopsIdentityEntity();
 
@@ -109,22 +94,7 @@ class CyclopsServiceTest extends CyclopsTestCase
 
     public function testDeleteCustomerErrorResponses()
     {
-        $service = Stub::make(CyclopsService::class, [
-            'doCyclopsRequest' => function (HttpRequest $request): HttpResponse {
-                $response = new HttpResponse();
-                $response->setResponseCode(200);
-
-                if ($this->authorization == false) {
-                    $response->setResponseCode(403);
-                } elseif ($this->badRequest) {
-                    $response->setResponseCode(400);
-                } elseif (strpos($request->getUrl(), 'afr1tr') !== false) {
-                    $response->setResponseCode(404);
-                }
-
-                return $response;
-            },
-        ]);
+        $service = $this->stubService('afr1tr');
 
         $identity = new CyclopsIdentityEntity();
         $identity->id = 'afr1tr';
