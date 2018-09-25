@@ -203,7 +203,8 @@ class CyclopsServiceTest extends CyclopsTestCase
             self::assertThrowsException(
                 $exceptionClass,
                 function () use ($service) {
-                    $service->getBrandOptInStatusChanges(new \DateTime());
+                    $date = new \DateTime();
+                    $service->getBrandOptInStatusChanges($date->format('Y-m-d\TH:i:s\Z'));
                 },
                 $message
             );
