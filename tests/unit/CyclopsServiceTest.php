@@ -194,4 +194,26 @@ class CyclopsServiceTest extends CyclopsTestCase
         $this->badRequest = true;
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
+
+    public function testGetBrandOptInStatusChangesErrorResponses()
+    {
+        $service = $this->stubService('afr1tr');
+
+        $assertException = function ($exceptionClass, $message) use ($service) {
+            self::assertThrowsException(
+                $exceptionClass,
+                function () use ($service) {
+                    $service->getBrandOptInStatusChanges(new \DateTime());
+                },
+                $message
+            );
+        };
+
+        $assertException(UserForbiddenException::class,
+            "Should get an exception for trying to get brand opt in status changes with a User who does not have read access");
+
+        $this->authorization = true;
+        $this->badRequest = true;
+        $assertException(CyclopsException::class, "Should get an exception for any other issues");
+    }
 }
