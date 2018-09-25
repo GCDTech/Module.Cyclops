@@ -215,4 +215,24 @@ class CyclopsService
 
         return $response;
     }
+
+    public function getBrandOptInStatusChanges(\DateTime $startingDate)
+    {
+        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate->format(DATE_ISO8601)}";
+        $request = new HttpRequest($url);
+        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
+        $response = $this->doCyclopsRequest($request);
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                throw new UserForbiddenException();
+                break;
+            default:
+                throw new CyclopsException();
+        }
+
+        return $response;
+    }
 }
