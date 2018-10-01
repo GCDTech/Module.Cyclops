@@ -20,7 +20,7 @@ class PushDeletedToCyclopsUseCase
 
     public function execute(CyclopsCustomerListEntity $list)
     {
-        foreach ($list as $item) {
+        foreach ($list->items as $item) {
             try {
                 $this->cyclopsService->deleteCustomer($item->identity);
             } catch (CyclopsException $exception) {

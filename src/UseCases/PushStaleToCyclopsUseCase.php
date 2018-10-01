@@ -20,7 +20,7 @@ class PushStaleToCyclopsUseCase
 
     public function execute(CyclopsCustomerListEntity $list)
     {
-        foreach ($list as $item) {
+        foreach ($list->items as $item) {
             try {
                 $this->cyclopsService->setBrandOptInStatus($item, $item->brandOptIn);
             } catch (CyclopsException $exception) {
