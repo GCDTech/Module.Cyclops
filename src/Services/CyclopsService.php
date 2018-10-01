@@ -233,6 +233,15 @@ class CyclopsService
                 throw new CyclopsException();
         }
 
-        return $response;
+        $changes = [];
+        if ($responseBody = json_decode($response->getResponseBody())) {
+            foreach ($responseBody->data as $data) {
+                if ($data->cyclopsId) {
+                    $changes[] = [$data->cyclopsId => $data->optIn];
+                }
+            }
+        }
+
+        return $changes;
     }
 }
