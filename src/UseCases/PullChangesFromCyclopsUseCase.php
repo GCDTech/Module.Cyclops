@@ -17,7 +17,7 @@ class PullChangesFromCyclopsUseCase
         $this->cyclopsService = $cyclopsService;
     }
 
-    public function execute(\DateTime $changesSince, callable $setOptIn)
+    public function execute(string $changesSince, callable $setOptIn)
     {
         try {
             $statusChanges = $this->cyclopsService->getBrandOptInStatusChanges($changesSince);
