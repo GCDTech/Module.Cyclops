@@ -26,8 +26,6 @@ class SetBrandOptInUseCase
             $customer = $this->cyclopsService->loadCustomer($identityEntity);
         }
 
-        $this->cyclopsService->setBrandOptInStatus($customer, $optIn);
-
         return $customer;
     }
 }
