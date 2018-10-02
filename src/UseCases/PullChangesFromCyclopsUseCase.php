@@ -17,7 +17,7 @@ class PullChangesFromCyclopsUseCase
         $this->cyclopsService = $cyclopsService;
     }
 
-    public function execute(string $changesSince, callable $setOptIn)
+    public function execute(\DateTime $changesSince, callable $setOptIn): \DateTime
     {
         try {
             $statusChanges = $this->cyclopsService->getBrandOptInStatusChanges($changesSince);
@@ -26,11 +26,9 @@ class PullChangesFromCyclopsUseCase
                 $setOptIn($cyclopsId, $optIn);
             }
 
-            if (file_exists('/cyclops/last-status-changes-date.txt')) {
-                mkdir('/cyclops');
-            }
-            file_put_contents('/cyclops/last-status-changes-date.txt', date('Y-m-d H:i:s'));
+            return new \DateTime();
         } catch (CyclopsException $exception) {
+            return $changesSince;
         }
     }
 }

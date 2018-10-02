@@ -216,9 +216,9 @@ class CyclopsService
         return $response;
     }
 
-    public function getBrandOptInStatusChanges(string $startingDate)
+    public function getBrandOptInStatusChanges(\DateTime $startingDate)
     {
-        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate}";
+        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate->format('Y-m-d\TH:i:s\Z')}";
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
