@@ -3,8 +3,7 @@
 namespace Gcd\Cyclops\UseCases;
 
 use Gcd\Cyclops\Entities\CyclopsCustomerListEntity;
-use Gcd\Cyclops\Exceptions\CyclopsException;
-use Gcd\Cyclops\Exceptions\UserForbiddenException;
+use Gcd\Cyclops\Exceptions\CustomerNotFoundException;
 use Gcd\Cyclops\Services\CyclopsService;
 
 class PushStaleToCyclopsUseCase
@@ -24,8 +23,9 @@ class PushStaleToCyclopsUseCase
         foreach ($list->items as $item) {
             try {
                 $this->cyclopsService->setBrandOptInStatus($item, $item->brandOptIn);
-            } catch (UserForbiddenException $exception) {
-                die('API User does not have write permission');
+            } catch (CustomerNotFoundException $exception) {
+                $customer = $this->cyclopsService->createCustomer($item->identity);
+                $this->cyclopsService->setBrandOptInStatus($customer, $item->brandOptIn);
             }
         }
     }
