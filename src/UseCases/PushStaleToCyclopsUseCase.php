@@ -4,6 +4,7 @@ namespace Gcd\Cyclops\UseCases;
 
 use Gcd\Cyclops\Entities\CyclopsCustomerListEntity;
 use Gcd\Cyclops\Exceptions\CyclopsException;
+use Gcd\Cyclops\Exceptions\UserForbiddenException;
 use Gcd\Cyclops\Services\CyclopsService;
 
 class PushStaleToCyclopsUseCase
@@ -23,7 +24,8 @@ class PushStaleToCyclopsUseCase
         foreach ($list->items as $item) {
             try {
                 $this->cyclopsService->setBrandOptInStatus($item, $item->brandOptIn);
-            } catch (CyclopsException $exception) {
+            } catch (UserForbiddenException $exception) {
+                die('API User does not have write permission');
             }
         }
     }
