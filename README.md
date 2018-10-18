@@ -37,5 +37,3 @@ The url, username and password we use to access the Cyclops API are set in `Cycl
 * `PushDeletedToCyclopsUseCase.php`
 
 * `PushStaleToCyclopsUseCase.php`
-
-* `SetBrandOptInUseCase.php`
