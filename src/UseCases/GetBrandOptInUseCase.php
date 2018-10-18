@@ -20,11 +20,7 @@ class GetBrandOptInUseCase
 
     public function execute(CyclopsIdentityEntity $identityEntity): CustomerEntity
     {
-        if (!$identityEntity->id) {
-            $customer = $this->cyclopsService->createCustomer($identityEntity);
-        } else {
-            $customer = $this->cyclopsService->loadCustomer($identityEntity);
-        }
+        $customer = $this->cyclopsService->loadCustomer($identityEntity);
 
         $optIn = $this->cyclopsService->getBrandOptInStatus($customer);
         $customer->brandOptIn = $optIn;

@@ -31,7 +31,7 @@ class CyclopsService
         $this->authorization = base64_encode($settings->authorizationUsername . ':' . $settings->authorizationPassword);
     }
 
-    public function createCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
+    public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
     {
         if ($identityEntity->id != '') {
             $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
@@ -71,42 +71,6 @@ class CyclopsService
     protected function doCyclopsRequest(HttpRequest $request)
     {
         return $this->httpClient->getResponse($request);
-    }
-
-    public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
-    {
-        if ($identityEntity->id != '') {
-            $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
-            $request = new HttpRequest($url);
-            $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-
-            $response = $this->doCyclopsRequest($request);
-        } else {
-            $url = $this->cyclopsUrl . "customer?email={$identityEntity->email}";
-            $request = new HttpRequest($url);
-            $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-
-            $response = $this->doCyclopsRequest($request);
-            $responseBody = json_decode($response->getResponseBody());
-            $identityEntity->id = $responseBody->data[0]->cyclopsId;
-        }
-
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                throw new CustomerNotFoundException();
-                break;
-            default:
-                throw new CyclopsException();
-        }
-
-        $customer = new CustomerEntity();
-        $customer->identity = $identityEntity;
-        return $customer;
     }
 
     public function deleteCustomer(CyclopsIdentityEntity $identityEntity)
