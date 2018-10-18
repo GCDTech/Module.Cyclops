@@ -3,13 +3,11 @@ Module for retrieving and sending data to cyclops
 
 ## Entities
 
-* `CustomerEntity.php` Used for most of our use cases, this combines a CyclopsIdentityEntity with their BrandOptIn and Subscriptions values.
+* `CustomerEntity.php` Used for most of our use cases, this combines a CyclopsIdentityEntity with their BrandOptIn value.
 
 * `CyclopsIdentityEntity.php` How we identify a Cyclops Customer - made up of email, id, forename and surname. 
 
 * `CyclopsCustomerListEntity.php` Made up of an array of CustomerEntities, used in our "Push to Cyclops" use cases.
-
-* `SubscriptionEntity.php` Created when we were updating customers subscriptions, rather than brand opt ins. Made up of an id, name and subscription value.
 
 ## Exceptions
 
@@ -34,10 +32,6 @@ The url, username and password we use to access the Cyclops API are set in `Cycl
 
 * `GetBrandOptInUseCase.php`
 
-* `GetSubscriptionListUseCase.php`
-
-* `GetSubscriptionSettingsUseCase.php`
-
 * `PullChangesFromCyclopsUseCase.php`
 
 * `PushDeletedToCyclopsUseCase.php`
@@ -45,5 +39,3 @@ The url, username and password we use to access the Cyclops API are set in `Cycl
 * `PushStaleToCyclopsUseCase.php`
 
 * `SetBrandOptInUseCase.php`
-
-* `SetSubscriptionSettingsUseCase.php`

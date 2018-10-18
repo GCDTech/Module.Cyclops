@@ -7,7 +7,5 @@ class CustomerEntity
     /** @var CyclopsIdentityEntity */
     public $identity;
 
-    public $subscriptions;
-
     public $brandOptIn;
 }

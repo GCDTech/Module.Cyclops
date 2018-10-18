@@ -109,30 +109,6 @@ class CyclopsService
         return $customer;
     }
 
-    public function getListOfSubscriptions(): array
-    {
-        $url = $this->cyclopsUrl . "newsletter/{$this->brandId}";
-        $request = new HttpRequest($url);
-        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
-
-        $subscriptions = [];
-
-        foreach ($response->data as $data) {
-            $subscriptions[$data->id] = $data->name;
-        }
-
-        return $subscriptions;
-    }
-
-    public function setSubscriptions(CustomerEntity $customerEntity, array $subscriptions)
-    {
-        $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/newsletters";
-        $request = new HttpRequest($url, 'post', $subscriptions);
-        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $this->httpClient->getResponse($request);
-    }
-
     public function deleteCustomer(CyclopsIdentityEntity $identityEntity)
     {
         $url = $this->cyclopsUrl . "customer/{$identityEntity->id}";
