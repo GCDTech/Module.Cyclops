@@ -19,16 +19,16 @@ class PullChangesFromCyclopsUseCase
 
     public function execute(\DateTime $changesSince, callable $setOptIn): \DateTime
     {
-        try {
             $statusChanges = $this->cyclopsService->getBrandOptInStatusChanges($changesSince);
 
-            foreach ($statusChanges as $cyclopsId => $optIn) {
-                $setOptIn($cyclopsId, $optIn);
+            foreach ($statusChanges as $cyclopsId => $data) {
+                $setOptIn($cyclopsId, $data->optIn);
+
+                if (!isset($changesDate) || $data->optinAt > $changesDate) {
+                    $changesDate = $data->optinAt;
+                }
             }
 
-            return new \DateTime();
-        } catch (CyclopsException $exception) {
-            return $changesSince;
-        }
+        return new \DateTime($changesDate);
     }
 }
