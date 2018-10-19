@@ -177,7 +177,7 @@ class CyclopsService
         if ($responseBody = json_decode($response->getResponseBody())) {
             foreach ($responseBody->data as $data) {
                 if ($data->cyclopsId) {
-                    $changes[] = [$data->cyclopsId => $data->optIn];
+                    $changes[] = [$data->cyclopsId => $data];
                 }
             }
         }
