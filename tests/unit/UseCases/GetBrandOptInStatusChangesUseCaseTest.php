@@ -17,13 +17,13 @@ class GetBrandOptInStatusChangesUseCaseTest extends CyclopsTestCase
     {
         $cyclopsId = 12;
         $service = Stub::make(CyclopsService::class, [
-            'createCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
+            'loadCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
                 $identityEntity->id = $count++;
                 $customer = new CustomerEntity();
                 $customer->identity = $identityEntity;
                 return $customer;
             },
-            'getBrandOptInStatusChanges' => function (string $startingDate) use ($cyclopsId) {
+            'getBrandOptInStatusChanges' => function (\DateTime $startingDate) use ($cyclopsId) {
                 return [
                     'data' => [
                         'cyclopsId' => $cyclopsId,
@@ -38,17 +38,16 @@ class GetBrandOptInStatusChangesUseCaseTest extends CyclopsTestCase
         $id = new CyclopsIdentityEntity();
         $id->email = 'test@hotmail.com';
         $id->id = $cyclopsId;
-        $service->createCustomer($id);
+        $service->loadCustomer($id);
 
         $useCase = new GetBrandOptInStatusChangesUseCase($service);
-        $startingDate = new \DateTime();
-        $response = $useCase->execute($startingDate->format('Y-m-d\TH:i:s\Z'));
+        $response = $useCase->execute(new \DateTime());
 
         verify($response['data']['cyclopsId'])->equals($cyclopsId);
         verify($response['data']['optIn'])->true();
 
         $this->optIn = false;
-        $response = $useCase->execute($startingDate->format('Y-m-d\TH:i:s\Z'));
+        $response = $useCase->execute(new \DateTime());
         verify($response['data']['optIn'])->false();
     }
 }

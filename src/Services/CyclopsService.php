@@ -31,7 +31,7 @@ class CyclopsService
         $this->authorization = base64_encode($settings->authorizationUsername . ':' . $settings->authorizationPassword);
     }
 
-    public function createCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
+    public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
     {
         if ($identityEntity->id != '') {
             $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
@@ -71,66 +71,6 @@ class CyclopsService
     protected function doCyclopsRequest(HttpRequest $request)
     {
         return $this->httpClient->getResponse($request);
-    }
-
-    public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
-    {
-        if ($identityEntity->id != '') {
-            $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
-            $request = new HttpRequest($url);
-            $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-
-            $response = $this->doCyclopsRequest($request);
-        } else {
-            $url = $this->cyclopsUrl . "customer?email={$identityEntity->email}";
-            $request = new HttpRequest($url);
-            $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-
-            $response = $this->doCyclopsRequest($request);
-            $responseBody = json_decode($response->getResponseBody());
-            $identityEntity->id = $responseBody->data[0]->cyclopsId;
-        }
-
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                throw new CustomerNotFoundException();
-                break;
-            default:
-                throw new CyclopsException();
-        }
-
-        $customer = new CustomerEntity();
-        $customer->identity = $identityEntity;
-        return $customer;
-    }
-
-    public function getListOfSubscriptions(): array
-    {
-        $url = $this->cyclopsUrl . "newsletter/{$this->brandId}";
-        $request = new HttpRequest($url);
-        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $response = json_decode($this->httpClient->getResponse($request)->getResponseBody());
-
-        $subscriptions = [];
-
-        foreach ($response->data as $data) {
-            $subscriptions[$data->id] = $data->name;
-        }
-
-        return $subscriptions;
-    }
-
-    public function setSubscriptions(CustomerEntity $customerEntity, array $subscriptions)
-    {
-        $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/newsletters";
-        $request = new HttpRequest($url, 'post', $subscriptions);
-        $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $this->httpClient->getResponse($request);
     }
 
     public function deleteCustomer(CyclopsIdentityEntity $identityEntity)
@@ -188,9 +128,9 @@ class CyclopsService
         return $optIn;
     }
 
-    public function setBrandOptInStatus(CustomerEntity $customerEntity, bool $optIn)
+    public function setBrandOptInStatus(CustomerEntity $customerEntity)
     {
-        $brands = json_encode([['brandId' => $this->brandId, 'optIn' => $optIn]]);
+        $brands = json_encode([['brandId' => $this->brandId, 'optIn' => $customerEntity->brandOptIn]]);
         $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
 
         $request = new HttpRequest($url, 'post', $brands);
@@ -216,9 +156,9 @@ class CyclopsService
         return $response;
     }
 
-    public function getBrandOptInStatusChanges(string $startingDate)
+    public function getBrandOptInStatusChanges(\DateTime $startingDate, int $page = 1)
     {
-        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate}";
+        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate->format('Y-m-d\TH:i:s\Z')}&page={$page}";
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
@@ -233,6 +173,15 @@ class CyclopsService
                 throw new CyclopsException();
         }
 
-        return $response;
+        $changes = [];
+        if ($responseBody = json_decode($response->getResponseBody())) {
+            foreach ($responseBody->data as $data) {
+                if ($data->cyclopsId) {
+                    $changes[] = [$data->cyclopsId => $data];
+                }
+            }
+        }
+
+        return $changes;
     }
 }

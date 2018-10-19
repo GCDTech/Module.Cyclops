@@ -16,7 +16,7 @@ class GetBrandOptInStatusChangesUseCase
         $this->cyclopsService = $cyclopsService;
     }
 
-    public function execute(string $startingDate)
+    public function execute(\DateTime $startingDate)
     {
         return $this->cyclopsService->getBrandOptInStatusChanges($startingDate);
     }
