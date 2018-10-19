@@ -2,7 +2,6 @@
 
 namespace Gcd\Cyclops\UseCases;
 
-use Gcd\Cyclops\Exceptions\CyclopsException;
 use Gcd\Cyclops\Services\CyclopsService;
 
 class PullChangesFromCyclopsUseCase
@@ -19,15 +18,24 @@ class PullChangesFromCyclopsUseCase
 
     public function execute(\DateTime $changesSince, callable $setOptIn): \DateTime
     {
-            $statusChanges = $this->cyclopsService->getBrandOptInStatusChanges($changesSince);
+        $changesDate = '';
+        $page = 1;
+        do {
+            $statusChanges = $this->cyclopsService->getBrandOptInStatusChanges($changesSince, $page);
 
             foreach ($statusChanges as $cyclopsId => $data) {
-                $setOptIn($cyclopsId, $data->optIn);
+                $setOptIn($cyclopsId, $data['optIn']);
 
-                if (!isset($changesDate) || $data->optinAt > $changesDate) {
-                    $changesDate = $data->optinAt;
+                if (isset($data->optinAt)) {
+                    if ($changesDate == '' || $data->optinAt > $changesDate) {
+                        $changesDate = $data->optinAt;
+                    }
                 }
             }
+
+            $page++;
+        } while ($statusChanges);
+
 
         return new \DateTime($changesDate);
     }
