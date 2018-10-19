@@ -18,14 +18,17 @@ class PushStaleToCyclopsUseCase
         $this->cyclopsService = $cyclopsService;
     }
 
-    public function execute(CyclopsCustomerListEntity $list)
+    public function execute(CyclopsCustomerListEntity $list, callable $onCustomerCreated)
     {
         foreach ($list->items as $item) {
             try {
-                $this->cyclopsService->setBrandOptInStatus($item, $item->brandOptIn);
+                $this->cyclopsService->setBrandOptInStatus($item);
             } catch (CustomerNotFoundException $exception) {
                 $customer = $this->cyclopsService->loadCustomer($item->identity);
-                $this->cyclopsService->setBrandOptInStatus($customer, $item->brandOptIn);
+                $customer->brandOptIn = $item->brandOptIn;
+                $this->cyclopsService->setBrandOptInStatus($customer);
+
+                $onCustomerCreated($customer);
             }
         }
     }

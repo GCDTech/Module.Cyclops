@@ -138,12 +138,13 @@ class CyclopsServiceTest extends CyclopsTestCase
         $identity->id = 'afr1tr';
         $customer = new CustomerEntity();
         $customer->identity = $identity;
+        $customer->brandOptIn = false;
 
         $assertException = function ($exceptionClass, $message) use ($service, $customer) {
             self::assertThrowsException(
                 $exceptionClass,
                 function () use ($customer, $service) {
-                    $service->setBrandOptInStatus($customer, false);
+                    $service->setBrandOptInStatus($customer);
                 },
                 $message
             );

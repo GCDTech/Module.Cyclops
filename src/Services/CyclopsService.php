@@ -128,9 +128,9 @@ class CyclopsService
         return $optIn;
     }
 
-    public function setBrandOptInStatus(CustomerEntity $customerEntity, bool $optIn)
+    public function setBrandOptInStatus(CustomerEntity $customerEntity)
     {
-        $brands = json_encode([['brandId' => $this->brandId, 'optIn' => $optIn]]);
+        $brands = json_encode([['brandId' => $this->brandId, 'optIn' => $customerEntity->brandOptIn]]);
         $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
 
         $request = new HttpRequest($url, 'post', $brands);

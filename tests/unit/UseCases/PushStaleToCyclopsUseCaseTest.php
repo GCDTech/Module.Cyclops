@@ -23,7 +23,7 @@ class PushStaleToCyclopsUseCaseTest extends CyclopsTestCase
                 $customer->brandOptIn = true;
                 return $customer;
             },
-            'setBrandOptInStatus' => function (CustomerEntity $customerEntity, bool $optIn) use (&$staleCount) {
+            'setBrandOptInStatus' => function (CustomerEntity $customerEntity) use (&$staleCount) {
                 $staleCount++;
             },
         ]);
