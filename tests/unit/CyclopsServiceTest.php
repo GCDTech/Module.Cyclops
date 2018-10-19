@@ -70,35 +70,6 @@ class CyclopsServiceTest extends CyclopsTestCase
         $assertException(CyclopsException::class, "Should get an exception for any other issues");
     }
 
-    public function testCreateCustomerErrorResponses()
-    {
-        $service = $this->stubService('test@test.com');
-
-        $identity = new CyclopsIdentityEntity();
-        $identity->email = 'test@test.com';
-
-        $assertException = function ($exceptionClass, $message) use ($service, $identity) {
-            self::assertThrowsException(
-                $exceptionClass,
-                function () use ($identity, $service) {
-                    $service->createCustomer($identity);
-                },
-                $message
-            );
-        };
-
-        $assertException(UserForbiddenException::class,
-            "Should get an exception for trying to load a customer with a User who does not have read access");
-
-        $this->authorization = true;
-        $this->badRequest = true;
-        $assertException(CyclopsException::class, "Should get an exception for any other issues");
-
-        $this->badRequest = false;
-        $assertException(CustomerNotFoundException::class,
-            "Should get an exception for trying to load a customer from an email address that doesn't exist");
-    }
-
     public function testDeleteCustomerErrorResponses()
     {
         $service = $this->stubService('afr1tr');

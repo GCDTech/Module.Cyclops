@@ -16,7 +16,7 @@ class PushDeletedToCyclopsUseCaseTest extends CyclopsTestCase
     {
         $deletedCount = $count = 0;
         $service = Stub::make(CyclopsService::class, [
-            'createCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
+            'loadCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
                 $identityEntity->id = $count++;
                 $customer = new CustomerEntity();
                 $customer->identity = $identityEntity;
@@ -36,7 +36,7 @@ class PushDeletedToCyclopsUseCaseTest extends CyclopsTestCase
         $createEntity = function ($email) use ($service) {
             $id = new CyclopsIdentityEntity();
             $id->email = $email;
-            return $service->createCustomer($id);
+            return $service->loadCustomer($id);
         };
 
         $list = new CyclopsCustomerListEntity();

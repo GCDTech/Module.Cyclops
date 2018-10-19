@@ -15,13 +15,10 @@ class GetBrandOptInUseCaseTest extends CyclopsTestCase
     {
         $count = 0;
         $service = Stub::make(CyclopsService::class, [
-            'createCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
-                $identityEntity->id = $count++;
-                $customer = new CustomerEntity();
-                $customer->identity = $identityEntity;
-                return $customer;
-            },
             'loadCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
+                if (!isset($identityEntity->id)) {
+                    $identityEntity->id = $count++;
+                }
                 $customer = new CustomerEntity();
                 $customer->identity = $identityEntity;
                 return $customer;
@@ -62,7 +59,7 @@ class GetBrandOptInUseCaseTest extends CyclopsTestCase
     {
         $count = 0;
         $service = Stub::make(CyclopsService::class, [
-            'createCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
+            'loadCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
                 $identityEntity->id = $count++;
                 $customer = new CustomerEntity();
                 $customer->identity = $identityEntity;

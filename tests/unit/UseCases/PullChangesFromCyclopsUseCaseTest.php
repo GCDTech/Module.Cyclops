@@ -16,13 +16,8 @@ class PullChangesFromCyclopsUseCaseTest extends CyclopsTestCase
         $cyclopsId = 12;
 
         $service = Stub::make(CyclopsService::class, [
-            'createCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
-                $identityEntity->id = $count++;
-                $customer = new CustomerEntity();
-                $customer->identity = $identityEntity;
-                return $customer;
-            },
             'loadCustomer' => function (CyclopsIdentityEntity $identityEntity) use (&$count): CustomerEntity {
+                $identityEntity->id = $count++;
                 $customer = new CustomerEntity();
                 $customer->identity = $identityEntity;
                 return $customer;
@@ -30,6 +25,7 @@ class PullChangesFromCyclopsUseCaseTest extends CyclopsTestCase
             'getBrandOptInStatusChanges' => function (\DateTime $startingDate) use ($cyclopsId) {
                 return [
                     'data' => [
+                        'optIn' => false
                     ],
                 ];
             }
