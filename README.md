@@ -1,6 +1,17 @@
 # Module.Cyclops
 Module for retrieving and sending data to cyclops
 
+## Commands
+
+* `PushStateToCyclopsCommand.php` Abstract Custard Command for pushing the state of Cyclops Customers.
+
+* `PushDeletedToCyclopsCommand.php` Deletes a list of Cyclops Customers.
+ 
+* `PushStaleToCyclopsCommand.php` Updates a list of Cyclops Customers' brand opt ins that have failed before.
+
+* `PullChangesFromCyclopsCommand.php` Retrieves a list of updates made to Cyclops Customers' brand opt ins, 
+allowing us to update project specific members to the same status.
+
 ## Entities
 
 * `CustomerEntity.php` Used for most of our use cases, this combines a CyclopsIdentityEntity with their BrandOptIn value.
