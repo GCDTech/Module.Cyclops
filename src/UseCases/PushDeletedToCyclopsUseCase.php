@@ -3,6 +3,7 @@
 namespace Gcd\Cyclops\UseCases;
 
 use Gcd\Cyclops\Entities\CyclopsCustomerListEntity;
+use Gcd\Cyclops\Exceptions\CustomerNotFoundException;
 use Gcd\Cyclops\Exceptions\CyclopsException;
 use Gcd\Cyclops\Services\CyclopsService;
 
@@ -24,6 +25,8 @@ class PushDeletedToCyclopsUseCase
             try {
                 $this->cyclopsService->deleteCustomer($item->identity);
                 $onCustomerDeleted($item);
+	        } catch (CustomerNotFoundException $exception) {
+		        $onCustomerDeleted($item);
             } catch (CyclopsException $exception) {
             }
         }
