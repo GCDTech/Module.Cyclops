@@ -23,6 +23,8 @@ class PushStaleToCyclopsUseCase
         foreach ($list->items as $item) {
             try {
                 $this->cyclopsService->setBrandOptInStatus($item);
+
+                $onCustomerCreated($item);
             } catch (CustomerNotFoundException $exception) {
                 $customer = $this->cyclopsService->loadCustomer($item->identity);
                 $customer->brandOptIn = $item->brandOptIn;
