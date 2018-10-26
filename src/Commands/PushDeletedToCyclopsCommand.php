@@ -9,6 +9,8 @@ abstract class PushDeletedToCyclopsCommand extends PushStateToCyclopsCommand
     final function executeUseCase()
     {
         $pushUseCase = new PushDeletedToCyclopsUseCase($this->getService());
-        $pushUseCase->execute($this->getList());
+        $pushUseCase->execute($this->getList(), $this->onCustomerDeleted());
     }
+
+    abstract protected function onCustomerDeleted(): callable;
 }
