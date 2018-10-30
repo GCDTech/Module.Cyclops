@@ -30,7 +30,7 @@ class PushStaleToCyclopsUseCaseTest extends CyclopsTestCase
 
         verify($staleCount)->equals(0);
 
-        $createEntity = function($email) use ($service) {
+        $createEntity = function ($email) use ($service) {
             $id = new CyclopsIdentityEntity();
             $id->email = $email;
             return $service->loadCustomer($id);
@@ -40,7 +40,7 @@ class PushStaleToCyclopsUseCaseTest extends CyclopsTestCase
         $list->items = [$createEntity('test@test.com'), $createEntity('test@testtest.com')];
 
         $useCase = new PushStaleToCyclopsUseCase($service);
-        $useCase->execute($list);
+        $useCase->execute($list, function () {});
         verify($staleCount)->equals(2);
     }
 }
