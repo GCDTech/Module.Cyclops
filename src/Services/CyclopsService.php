@@ -10,6 +10,7 @@ use Gcd\Cyclops\Exceptions\CyclopsException;
 use Gcd\Cyclops\Exceptions\UserForbiddenException;
 use Gcd\Cyclops\Http\CurlHttpClient;
 use Gcd\Cyclops\Http\HttpRequest;
+use Gcd\Cyclops\Http\HttpResponse;
 use Gcd\Cyclops\Settings\CyclopsSettings;
 
 class CyclopsService
@@ -31,6 +32,38 @@ class CyclopsService
         $this->authorization = base64_encode($settings->authorizationUsername . ':' . $settings->authorizationPassword);
     }
 
+    private function logCyclopsErrors(HttpRequest $request, HttpResponse $response)
+    {
+        $loggableRequest = clone $request;
+        if (isset($loggableRequest->getHeaders()['Authorization'])) {
+            $loggableRequest->addHeader('Authorization', '[[REDACTED]]');
+        }
+        error_log('Cyclops exception response: ' . $response->getResponseCode() . ' ' . $response->getResponseBody() .
+            "\n Request: " . var_export($loggableRequest, true));
+    }
+
+    private function handleResponseCodes(HttpResponse $response, HttpRequest $request)
+    {
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                $this->logCyclopsErrors($request, $response);
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                $this->logCyclopsErrors($request, $response);
+                throw new CustomerNotFoundException();
+                break;
+            case 409:
+                $this->logCyclopsErrors($request, $response);
+                throw new ConflictException();
+            default:
+                $this->logCyclopsErrors($request, $response);
+                throw new CyclopsException();
+        }
+    }
+
     public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
     {
         if ($identityEntity->id != '') {
@@ -44,23 +77,13 @@ class CyclopsService
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
 
             $response = $this->doCyclopsRequest($request);
-            $responseBody = json_decode($response->getResponseBody());
-            if ($responseBody) {
-                $identityEntity->id = $responseBody->data[0]->cyclopsId;
-            }
         }
 
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                throw new CustomerNotFoundException();
-                break;
-            default:
-                throw new CyclopsException();
+        $this->handleResponseCodes($response, $request);
+
+        $responseBody = json_decode($response->getResponseBody());
+        if ($responseBody) {
+            $identityEntity->id = $responseBody->data[0]->cyclopsId;
         }
 
         $customer = new CustomerEntity();
@@ -80,19 +103,7 @@ class CyclopsService
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
 
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                throw new CustomerNotFoundException();
-                break;
-            default:
-                throw new CyclopsException();
-        }
-
+        $this->handleResponseCodes($response, $request);
         return $response;
     }
 
@@ -104,18 +115,7 @@ class CyclopsService
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
 
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                throw new CustomerNotFoundException();
-                break;
-            default:
-                throw new CyclopsException();
-        }
+        $this->handleResponseCodes($response, $request);
 
         if ($responseBody = json_decode($response->getResponseBody())) {
             foreach ($responseBody->data as $data) {
@@ -138,21 +138,7 @@ class CyclopsService
         $request->addHeader('Content-Type', 'application/json');
         $response = $this->doCyclopsRequest($request);
 
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                throw new CustomerNotFoundException();
-                break;
-            case 409:
-                throw new ConflictException();
-            default:
-                throw new CyclopsException();
-        }
-
+        $this->handleResponseCodes($response, $request);
         return $response;
     }
 
@@ -163,15 +149,7 @@ class CyclopsService
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
 
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                throw new UserForbiddenException();
-                break;
-            default:
-                throw new CyclopsException();
-        }
+        $this->handleResponseCodes($response, $request);
 
         $changes = [];
         if ($responseBody = json_decode($response->getResponseBody())) {
