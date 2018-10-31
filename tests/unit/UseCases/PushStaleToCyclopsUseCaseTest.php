@@ -40,7 +40,7 @@ class PushStaleToCyclopsUseCaseTest extends CyclopsTestCase
         $list->items = [$createEntity('test@test.com'), $createEntity('test@testtest.com')];
 
         $useCase = new PushStaleToCyclopsUseCase($service);
-        $useCase->execute($list, function () {});
+        $useCase->execute($list);
         verify($staleCount)->equals(2);
     }
 }

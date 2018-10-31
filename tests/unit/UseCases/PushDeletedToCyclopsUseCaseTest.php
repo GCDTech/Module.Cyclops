@@ -43,7 +43,7 @@ class PushDeletedToCyclopsUseCaseTest extends CyclopsTestCase
         $list->items = [$createEntity('test@test.com'), $createEntity('test@testtest.com')];
 
         $useCase = new PushDeletedToCyclopsUseCase($service);
-        $useCase->execute($list, function() {});
+        $useCase->execute($list);
         verify($deletedCount)->equals(2);
     }
 }
