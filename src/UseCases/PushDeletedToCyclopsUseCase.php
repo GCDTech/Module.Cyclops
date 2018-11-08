@@ -31,7 +31,6 @@ class PushDeletedToCyclopsUseCase
                 if ($onCustomerDeleted !== null) {
                     $onCustomerDeleted($item, false);
                 }
-            } catch (CyclopsException $exception) {
             }
         }
     }
