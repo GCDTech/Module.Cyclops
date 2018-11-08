@@ -29,7 +29,7 @@ class PushStaleToCyclopsUseCase
                 $customer->brandOptIn = $item->brandOptIn;
                 $this->cyclopsService->setBrandOptInStatus($customer);
 
-                $onItemPushed($customer, true);
+                $onItemPushed($item, true, $customer);
             }
         }
     }
