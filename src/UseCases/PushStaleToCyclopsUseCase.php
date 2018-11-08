@@ -22,6 +22,9 @@ class PushStaleToCyclopsUseCase
     {
         foreach ($list->items as $item) {
             try {
+                if (!$item->identity->id) {
+                    throw new CustomerNotFoundException();
+                }
                 $this->cyclopsService->setBrandOptInStatus($item);
                 $onItemPushed($item, false);
             } catch (CustomerNotFoundException $exception) {
