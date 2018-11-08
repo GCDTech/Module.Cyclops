@@ -25,11 +25,11 @@ class PushDeletedToCyclopsUseCase
             try {
                 $this->cyclopsService->deleteCustomer($item->identity);
                 if ($onCustomerDeleted !== null) {
-                    $onCustomerDeleted($item);
+                    $onCustomerDeleted($item, true);
                 }
             } catch (CustomerNotFoundException $exception) {
                 if ($onCustomerDeleted !== null) {
-                    $onCustomerDeleted($item);
+                    $onCustomerDeleted($item, false);
                 }
             } catch (CyclopsException $exception) {
             }
