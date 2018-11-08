@@ -9,8 +9,8 @@ abstract class PushStaleToCyclopsCommand extends PushStateToCyclopsCommand
     final function executeUseCase()
     {
         $pushUseCase = new PushStaleToCyclopsUseCase($this->getService());
-        $pushUseCase->execute($this->getList(), $this->onCustomerCreated());
+        $pushUseCase->execute($this->getList(), $this->getCustomerPushedHandler());
     }
 
-    abstract protected function onCustomerCreated(): callable;
+    abstract protected function getCustomerPushedHandler(): callable;
 }
