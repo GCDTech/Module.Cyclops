@@ -19,14 +19,18 @@ class PushDeletedToCyclopsUseCase
         $this->cyclopsService = $cyclopsService;
     }
 
-    public function execute(CyclopsCustomerListEntity $list, callable $onCustomerDeleted)
+    public function execute(CyclopsCustomerListEntity $list, callable $onCustomerDeleted = null)
     {
         foreach ($list->items as $item) {
             try {
                 $this->cyclopsService->deleteCustomer($item->identity);
-                $onCustomerDeleted($item);
-	        } catch (CustomerNotFoundException $exception) {
-		        $onCustomerDeleted($item);
+                if ($onCustomerDeleted !== null) {
+                    $onCustomerDeleted($item);
+                }
+            } catch (CustomerNotFoundException $exception) {
+                if ($onCustomerDeleted !== null) {
+                    $onCustomerDeleted($item);
+                }
             } catch (CyclopsException $exception) {
             }
         }
