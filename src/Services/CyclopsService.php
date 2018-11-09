@@ -23,6 +23,10 @@ class CyclopsService
 
     private $authorization;
 
+    private $enableLogging;
+
+    private $enableApi;
+
     public function __construct(int $brandId)
     {
         $this->brandId = $brandId;
@@ -30,6 +34,8 @@ class CyclopsService
         $settings = CyclopsSettings::singleton();
         $this->cyclopsUrl = $settings->cyclopsUrl;
         $this->authorization = base64_encode($settings->authorizationUsername . ':' . $settings->authorizationPassword);
+        $this->enableLogging = $settings->enableLogging;
+        $this->enableApi = $settings->enableApi;
     }
 
     private function logCyclopsErrors(HttpRequest $request, HttpResponse $response)
@@ -38,29 +44,14 @@ class CyclopsService
         if (isset($loggableRequest->getHeaders()['Authorization'])) {
             $loggableRequest->addHeader('Authorization', '[[REDACTED]]');
         }
-        error_log('Cyclops exception response: ' . $response->getResponseCode() . ' ' . $response->getResponseBody() .
-            "\n Request: " . var_export($loggableRequest, true));
-    }
-
-    private function handleResponseCodes(HttpResponse $response, HttpRequest $request)
-    {
-        switch ($response->getResponseCode()) {
-            case 200:
-                break;
-            case 403:
-                $this->logCyclopsErrors($request, $response);
-                throw new UserForbiddenException();
-                break;
-            case 404:
-                $this->logCyclopsErrors($request, $response);
-                throw new CustomerNotFoundException();
-                break;
-            case 409:
-                $this->logCyclopsErrors($request, $response);
-                throw new ConflictException();
-            default:
-                $this->logCyclopsErrors($request, $response);
-                throw new CyclopsException();
+        if ($this->enableLogging) {
+            error_log('Cyclops exception response: '
+                . $response->getResponseCode()
+                . ' '
+                . $response->getResponseBody()
+                .
+                "\n Request: "
+                . var_export($loggableRequest, true));
         }
     }
 
@@ -79,8 +70,6 @@ class CyclopsService
             $response = $this->doCyclopsRequest($request);
         }
 
-        $this->handleResponseCodes($response, $request);
-
         $responseBody = json_decode($response->getResponseBody());
         if ($responseBody) {
             $identityEntity->id = $responseBody->data[0]->cyclopsId;
@@ -93,7 +82,32 @@ class CyclopsService
 
     protected function doCyclopsRequest(HttpRequest $request)
     {
-        return $this->httpClient->getResponse($request);
+        if (!$this->enableApi) {
+            throw new CyclopsException('Cyclops API disabled');
+        }
+
+        $response = $this->httpClient->getResponse($request);
+
+        switch ($response->getResponseCode()) {
+            case 200:
+                break;
+            case 403:
+                $this->logCyclopsErrors($request, $response);
+                throw new UserForbiddenException();
+                break;
+            case 404:
+                $this->logCyclopsErrors($request, $response);
+                throw new CustomerNotFoundException();
+                break;
+            case 409:
+                $this->logCyclopsErrors($request, $response);
+                throw new ConflictException();
+            default:
+                $this->logCyclopsErrors($request, $response);
+                throw new CyclopsException();
+        }
+
+        return $response;
     }
 
     public function deleteCustomer(CyclopsIdentityEntity $identityEntity)
@@ -101,10 +115,7 @@ class CyclopsService
         $url = $this->cyclopsUrl . "customer/{$identityEntity->id}";
         $request = new HttpRequest($url, 'delete');
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
-        $response = $this->doCyclopsRequest($request);
-
-        $this->handleResponseCodes($response, $request);
-        return $response;
+        return $this->doCyclopsRequest($request);
     }
 
     public function getBrandOptInStatus(CustomerEntity $customerEntity): bool
@@ -114,8 +125,6 @@ class CyclopsService
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
-
-        $this->handleResponseCodes($response, $request);
 
         if ($responseBody = json_decode($response->getResponseBody())) {
             foreach ($responseBody->data as $data) {
@@ -136,10 +145,7 @@ class CyclopsService
         $request = new HttpRequest($url, 'post', $brands);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $request->addHeader('Content-Type', 'application/json');
-        $response = $this->doCyclopsRequest($request);
-
-        $this->handleResponseCodes($response, $request);
-        return $response;
+        return $this->doCyclopsRequest($request);
     }
 
     public function getBrandOptInStatusChanges(\DateTime $startingDate, int $page = 1)
@@ -148,8 +154,6 @@ class CyclopsService
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
-
-        $this->handleResponseCodes($response, $request);
 
         $changes = [];
         if ($responseBody = json_decode($response->getResponseBody())) {

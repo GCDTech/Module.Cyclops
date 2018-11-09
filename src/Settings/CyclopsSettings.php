@@ -7,6 +7,8 @@ class CyclopsSettings
     public $cyclopsUrl = '';
     public $authorizationUsername = '';
     public $authorizationPassword = '';
+    public $enableLogging = false;
+    public $enableApi = false;
 
     static $singleton;
 
