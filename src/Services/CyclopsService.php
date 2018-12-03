@@ -63,7 +63,8 @@ class CyclopsService
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
             $response = $this->doCyclopsRequest($request);
         } else {
-            $url = $this->cyclopsUrl . "customer?email={$identityEntity->email}";
+            $email = urlencode($identityEntity->email);
+            $url = $this->cyclopsUrl . "customer?email=$email";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
 
