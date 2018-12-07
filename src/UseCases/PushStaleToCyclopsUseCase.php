@@ -28,7 +28,7 @@ class PushStaleToCyclopsUseCase
                 $this->cyclopsService->setBrandOptInStatus($item);
                 $onItemPushed($item, false);
             } catch (CustomerNotFoundException $exception) {
-                $customer = $this->cyclopsService->loadCustomer($item->identity);
+                $customer = $this->cyclopsService->loadCustomer($item->identity, $item->timestamp);
                 $customer->brandOptIn = $item->brandOptIn;
                 $this->cyclopsService->setBrandOptInStatus($customer);
 
