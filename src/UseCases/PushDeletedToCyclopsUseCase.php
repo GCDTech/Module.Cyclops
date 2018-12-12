@@ -23,7 +23,7 @@ class PushDeletedToCyclopsUseCase
     {
         foreach ($list->items as $item) {
             try {
-                $this->cyclopsService->deleteCustomer($item->identity);
+                $this->cyclopsService->deleteCustomer($item->identity, $item->timestamp);
                 if ($onCustomerDeleted !== null) {
                     $onCustomerDeleted($item, true);
                 }

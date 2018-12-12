@@ -27,6 +27,8 @@ class CyclopsService
 
     private $enableApi;
 
+    const TIMESTAMP_FORMAT = 'Y-m-d\TH:i:s\Z';
+
     public function __construct(int $brandId)
     {
         $this->brandId = $brandId;
@@ -55,16 +57,22 @@ class CyclopsService
         }
     }
 
-    public function loadCustomer(CyclopsIdentityEntity $identityEntity): CustomerEntity
+    public function loadCustomer(CyclopsIdentityEntity $identityEntity, \DateTime $timestamp = null): CustomerEntity
     {
+        if (is_null($timestamp)) {
+            $timestamp = new \DateTime('now');
+        }
+
+        $timestamp = $timestamp->format(self::TIMESTAMP_FORMAT);
+
         if ($identityEntity->id != '') {
-            $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}";
+            $url = $this->cyclopsUrl . "customer?cyclopsId={$identityEntity->id}&timestamp=$timestamp";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
             $response = $this->doCyclopsRequest($request);
         } else {
             $email = urlencode($identityEntity->email);
-            $url = $this->cyclopsUrl . "customer?email=$email";
+            $url = $this->cyclopsUrl . "customer?email=$email&timestamp=$timestamp";
             $request = new HttpRequest($url);
             $request->addHeader('Authorization', 'Basic ' . $this->authorization);
 
@@ -111,9 +119,15 @@ class CyclopsService
         return $response;
     }
 
-    public function deleteCustomer(CyclopsIdentityEntity $identityEntity)
+    public function deleteCustomer(CyclopsIdentityEntity $identityEntity, \DateTime $timestamp = null)
     {
-        $url = $this->cyclopsUrl . "customer/{$identityEntity->id}";
+        if (is_null($timestamp)) {
+            $timestamp = new \DateTime('now');
+        }
+
+        $timestamp = $timestamp->format(self::TIMESTAMP_FORMAT);
+
+        $url = $this->cyclopsUrl . "customer/{$identityEntity->id}?timestamp=$timestamp";
         $request = new HttpRequest($url, 'delete');
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         return $this->doCyclopsRequest($request);
@@ -140,7 +154,19 @@ class CyclopsService
 
     public function setBrandOptInStatus(CustomerEntity $customerEntity)
     {
-        $brands = json_encode([['brandId' => $this->brandId, 'optIn' => $customerEntity->brandOptIn]]);
+        if (!$customerEntity->timestamp  || !$customerEntity->timestamp instanceof \DateTime) {
+            $customerEntity->timestamp = new \DateTime('now');
+        }
+
+        $timestamp = $customerEntity->timestamp->format(self::TIMESTAMP_FORMAT);
+
+        $brands = json_encode([
+            [
+                'brandId' => $this->brandId,
+                'optIn' => $customerEntity->brandOptIn,
+                'timestamp' => $timestamp
+            ]
+        ]);
         $url = $this->cyclopsUrl . "customer/{$customerEntity->identity->id}/brands";
 
         $request = new HttpRequest($url, 'post', $brands);
@@ -151,7 +177,7 @@ class CyclopsService
 
     public function getBrandOptInStatusChanges(\DateTime $startingDate, int $page = 1)
     {
-        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate->format('Y-m-d\TH:i:s\Z')}&page={$page}";
+        $url = $this->cyclopsUrl . "customer/optins?starting_at={$startingDate->format(self::TIMESTAMP_FORMAT)}&page={$page}";
         $request = new HttpRequest($url);
         $request->addHeader('Authorization', 'Basic ' . $this->authorization);
         $response = $this->doCyclopsRequest($request);
