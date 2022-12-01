@@ -13,6 +13,7 @@ abstract class PushStateToCyclopsCommand extends CustardCommand
     final function execute(InputInterface $input, OutputInterface $output)
     {
         $this->executeUseCase();
+        return 0;
     }
 
     abstract protected function getService(): CyclopsService;
