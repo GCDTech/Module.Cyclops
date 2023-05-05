@@ -6,7 +6,7 @@ use Gcd\Cyclops\UseCases\PushStaleToCyclopsUseCase;
 
 abstract class PushStaleToCyclopsCommand extends PushStateToCyclopsCommand
 {
-    final function executeUseCase()
+    protected function executeUseCase()
     {
         $pushUseCase = new PushStaleToCyclopsUseCase($this->getService());
         $pushUseCase->execute($this->getList(), $this->getCustomerPushedHandler());
